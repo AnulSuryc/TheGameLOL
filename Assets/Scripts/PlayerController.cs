@@ -27,7 +27,8 @@ public class PlayerMovement : MonoBehaviour
     [Header("Flashlight")]
     public GameObject flashlight;
     public bool lightEnabled;
-
+    public float flashlightCooldown = 0;
+    public float maxCooldown;
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -44,18 +45,28 @@ public class PlayerMovement : MonoBehaviour
 
         PlayerInput();
         SpeedControl();
-
-        if (Input.GetAxis("Flashlight"))
+        if (flashlightCooldown <= 0)
         {
-            if(lightEnabled == true) {
-                lightEnabled = false;
+            if (Input.GetAxis("Flashlight") > 0)
+            {
+                if (lightEnabled == true)
+                {
+                    lightEnabled = false;
+                    flashlight.gameObject.SetActive(false);
+                    flashlightCooldown = maxCooldown;
+                }
+                else
+                {
+                    lightEnabled = true;
+                    flashlight.gameObject.SetActive(true);
+                    flashlightCooldown = maxCooldown;
+                }
             }
-            else{
-                lightEnabled = true;
-            }
+        } else {
+            if (flashlightCooldown > 0)
+                flashlightCooldown -= 1;
         }
-
-        // Corrected Rigidbody Drag
+        //Corrected Rigidbody Drag
         rb.linearDamping = grounded ? groundDrag : 0f;
     }
 
@@ -128,6 +139,8 @@ public class PlayerMovement : MonoBehaviour
             flashlight.gameObject.SetActive(true);
         }
     }
+
+    
     
     //public void onKeyRelease()
 }
